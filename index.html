@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 Masters Pool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:      #006747;
+      --dark-green: #004d36;
+      --deeper:     #003326;
+      --gold:       #c9a84c;
+      --gold-light: #e8c96a;
+      --red:        #e05555;
+      --blue:       #74b9f5;
+      --card-bg:    rgba(255,255,255,0.07);
+      --border:     rgba(255,255,255,0.09);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--deeper);
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--green);
+      border-bottom: 3px solid var(--gold);
+      padding: 22px 20px 14px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    .header-logo { height: 80px; width: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto; }
+    .header-flag { font-size: 1.6rem; margin-bottom: 4px; }
+
+    .header-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--gold);
+      letter-spacing: 8px;
+      text-transform: uppercase;
+    }
+
+    .header-sub {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .refresh-bar {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .refresh-btn {
+      background: var(--gold);
+      color: var(--dark-green);
+      border: none;
+      padding: 4px 14px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .refresh-btn:hover { background: var(--gold-light); }
+
+    /* ── STATUS TICKER ── */
+    .status-bar {
+      background: rgba(0,0,0,0.3);
+      text-align: center;
+      padding: 7px 16px;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 20px 14px 40px;
+    }
+
+    /* ── PRE-TOURNAMENT BANNER ── */
+    .pre-banner {
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 10px;
+      padding: 18px 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .pre-banner .icon { font-size: 1.6rem; margin-bottom: 6px; }
+    .pre-banner h3 { color: var(--gold); font-size: 1rem; margin-bottom: 4px; }
+    .pre-banner p  { font-size: 0.78rem; color: rgba(255,255,255,0.55); }
+
+    /* ── TABLE HEADER ── */
+    .table-header {
+      display: grid;
+      grid-template-columns: 44px 1fr 72px 100px;
+      padding: 6px 16px;
+      font-size: 0.62rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      border-bottom: 1px solid rgba(201,168,76,0.25);
+      margin-bottom: 6px;
+    }
+    .table-header div:nth-child(3),
+    .table-header div:nth-child(4) { text-align: right; }
+
+    /* ── PARTICIPANT CARD ── */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 7px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: rgba(255,255,255,0.18); }
+    .card.leader { border-color: var(--gold); background: rgba(201,168,76,0.1); }
+    .card.eliminated { background: rgba(180,40,40,0.12); border-color: rgba(180,40,40,0.25); opacity: 0.75; }
+
+    .card-row {
+      display: grid;
+      grid-template-columns: 44px 1fr 72px 100px;
+      align-items: center;
+      padding: 14px 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .pos {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .pname {
+      font-size: 0.98rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .out-badge {
+      font-size: 0.58rem;
+      background: var(--red);
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 3px;
+      letter-spacing: 1px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .pending-badge {
+      font-size: 0.58rem;
+      background: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.6);
+      padding: 2px 6px;
+      border-radius: 3px;
+      letter-spacing: 1px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .score-total {
+      text-align: right;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+    .score-total.under { color: var(--red); }
+    .score-total.over  { color: var(--blue); }
+    .score-total.even  { color: #fff; }
+    .score-total.out   { color: rgba(255,255,255,0.3); font-size: 1rem; }
+    .score-total.dash  { color: rgba(255,255,255,0.3); font-size: 1rem; }
+
+    .cut-detail {
+      text-align: right;
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 1px;
+    }
+
+    /* ── GOLFER LIST ── */
+    .golfer-list { display: none; border-top: 1px solid rgba(255,255,255,0.07); }
+    .golfer-list.open { display: block; }
+
+    .golfer-list-header {
+      display: grid;
+      grid-template-columns: 20px 1fr 58px 58px 70px;
+      padding: 6px 16px 5px 52px;
+      font-size: 0.6rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .golfer-list-header div:nth-child(3),
+    .golfer-list-header div:nth-child(4),
+    .golfer-list-header div:nth-child(5) { text-align: right; }
+
+    .golfer-row {
+      display: grid;
+      grid-template-columns: 20px 1fr 58px 58px 70px;
+      align-items: center;
+      padding: 9px 16px 9px 52px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.83rem;
+      transition: background 0.15s;
+    }
+    .golfer-row:last-child { border-bottom: none; }
+    .golfer-row.counted { background: rgba(201,168,76,0.07); }
+    .golfer-row.cut-row { opacity: 0.38; }
+
+    .g-check { font-size: 0.78rem; }
+    .g-name  { font-weight: 400; }
+
+    .g-score { text-align: right; font-weight: 600; }
+    .g-score.under { color: var(--red); }
+    .g-score.over  { color: var(--blue); }
+
+    .g-pos    { text-align: right; color: rgba(255,255,255,0.4); font-size: 0.72rem; }
+
+    .g-status { text-align: right; font-size: 0.62rem; letter-spacing: 1px; text-transform: uppercase; }
+    .g-status.cut    { color: var(--red); }
+    .g-status.active { color: #4ade80; }
+    .g-status.fin    { color: rgba(255,255,255,0.35); }
+    .g-status.pre    { color: rgba(255,255,255,0.25); }
+
+    .pending-row {
+      padding: 9px 16px 9px 52px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.28);
+      font-style: italic;
+    }
+
+    /* ── LOADING ── */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255,255,255,0.5);
+    }
+    .spin {
+      display: inline-block;
+      font-size: 2rem;
+      animation: spin 1.8s linear infinite;
+      margin-bottom: 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.22);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 560px) {
+      .header-title { font-size: 1.4rem; letter-spacing: 5px; }
+      .table-header  { grid-template-columns: 36px 1fr 58px 80px; }
+      .card-row      { grid-template-columns: 36px 1fr 58px 80px; }
+      .golfer-row, .golfer-list-header { grid-template-columns: 18px 1fr 50px 50px 58px; padding-left: 38px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img
+    class="header-logo"
+    src="Masters_(1).svg"
+    alt="The Masters"
+    onerror="this.style.display='none'; document.getElementById('header-fallback').style.display='block';"
+  >
+  <div id="header-fallback" style="display:none">
+    <div class="header-flag">⛳</div>
+    <div class="header-title">The Masters</div>
+  </div>
+  <div class="header-sub">2026 &nbsp;·&nbsp; Augusta National &nbsp;·&nbsp; Pool Standings</div>
+  <div class="refresh-bar">
+    <span id="last-updated">Fetching scores...</span>
+    <button class="refresh-btn" onclick="fetchScores()">↻ Refresh</button>
+  </div>
+</header>
+
+<div class="status-bar" id="status-bar">&nbsp;</div>
+
+<main>
+  <div id="standings">
+    <div class="loading">
+      <div class="spin">⛳</div>
+      <div>Loading leaderboard...</div>
+    </div>
+  </div>
+</main>
+
+<footer>Auto-refreshes every 60 s &nbsp;·&nbsp; Scores via ESPN</footer>
+
+<script>
+// ============================================================
+//  POOL DATA
+//  4th picks marked null — update once everyone finishes picking
+// ============================================================
+const POOL = [
+  { name: "Travis",  picks: ["Scottie Scheffler", "J.J. Spaun",          "Shane Lowry",       null] },
+  { name: "Andrew",  picks: ["Jon Rahm",           "Jake Knapp",          "Nicolai Hojgaard",  null] },
+  { name: "Ian",     picks: ["Bryson DeChambeau",  "Brooks Koepka",       "Jason Day",         null] },
+  { name: "Logan",   picks: ["Rory McIlroy",       "Si Woo Kim",          "Jacob Bridgeman",   null] },
+  { name: "Randy",   picks: ["Ludvig Aberg",       "Russell Henley",      "Tyrrell Hatton",    null] },
+  { name: "Patrick", picks: ["Xander Schauffele",  "Patrick Cantlay",     "Sam Burns",         null] },
+  { name: "Tiffy",   picks: ["Cameron Young",      "Sepp Straka",         "Maverick McNealy",  null] },
+  { name: "Scott",   picks: ["Matt Fitzpatrick",   "Akshay Bhatia",       "Justin Thomas",     null] },
+  { name: "Robert",  picks: ["Tommy Fleetwood",    "Viktor Hovland",      "Adam Scott",        null] },
+  { name: "Everett", picks: ["Hideki Matsuyama",   "Min Woo Lee",         "Harris English",    null] },
+  { name: "Masin",   picks: ["Patrick Reed",       "Jordan Spieth",       "Corey Conners",     null] },
+  { name: "Josh",    picks: ["Robert MacIntyre",   "Collin Morikawa",     "Sungjae Im",        null] },
+  { name: "Hayden",  picks: ["Chris Gotterup",     "Justin Rose",         "Cameron Smith",     "Marco Penge"] },
+];
+
+// ============================================================
+//  STATE
+// ============================================================
+const ESPN_URL = 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard';
+let leaderboard  = {};   // normalizedName -> { fullName, score, scoreStr, position, status }
+let tourneyPhase = 'pre'; // 'pre' | 'in' | 'post'
+
+// ============================================================
+//  FETCH
+// ============================================================
+async function fetchScores() {
+  document.getElementById('last-updated').textContent = 'Refreshing...';
+  try {
+    const res  = await fetch(ESPN_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    // Navigate ESPN structure
+    const events = (data.sports?.[0]?.leagues?.[0]?.events) || data.events || [];
+    if (!events.length) throw new Error('No events');
+
+    // Prefer Masters; fallback to first event
+    const ev = events.find(e => /master/i.test(e.name)) || events[0];
+    const competitors = ev.competitions?.[0]?.competitors || [];
+
+    // Tournament phase
+    const statusName = ev.status?.type?.name || '';
+    tourneyPhase = /pre|scheduled/i.test(statusName) ? 'pre'
+                 : /post|final/i.test(statusName)    ? 'post'
+                 : 'in';
+
+    // Build lookup
+    leaderboard = {};
+    for (const c of competitors) {
+      const fullName = c.athlete?.displayName || '';
+      if (!fullName) continue;
+
+      const scoreRaw = c.score ?? 'E';
+      const scoreNum = parseScore(scoreRaw);
+
+      const statusDesc = (c.status?.type?.description || '').toLowerCase();
+      const statusN    = (c.status?.type?.name || '').toLowerCase();
+      const isCut = statusN.includes('cut') || statusDesc.includes('cut')
+                 || statusN.includes('wd')  || statusDesc.includes('withdraw');
+
+      leaderboard[norm(fullName)] = {
+        fullName,
+        score:    scoreNum,
+        scoreStr: fmtScore(scoreNum),
+        position: c.status?.position?.displayName || c.status?.displayName || '',
+        status:   isCut ? 'cut' : (tourneyPhase === 'post' ? 'fin' : 'active'),
+      };
+    }
+
+    document.getElementById('status-bar').textContent =
+      `${ev.name || 'Masters'}  ·  ${competitors.length} players  ·  ${phaseLabel()}`;
+    document.getElementById('last-updated').textContent =
+      `Updated ${new Date().toLocaleTimeString()}`;
+
+    render();
+  } catch (err) {
+    console.error(err);
+    document.getElementById('last-updated').textContent =
+      `Error — ${new Date().toLocaleTimeString()}`;
+    document.getElementById('status-bar').textContent =
+      'Live scoring unavailable — showing pool picks only';
+    leaderboard = {};
+    render();
+  }
+}
+
+function phaseLabel() {
+  return tourneyPhase === 'pre'  ? 'Tournament not yet started'
+       : tourneyPhase === 'post' ? 'Tournament complete'
+       : 'In progress';
+}
+
+// ============================================================
+//  NAME UTILITIES
+// ============================================================
+function norm(name) {
+  return (name || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function findGolfer(pick) {
+  if (!pick) return null;
+  const n = norm(pick);
+
+  // Exact
+  if (leaderboard[n]) return leaderboard[n];
+
+  const parts    = n.split(' ');
+  const lastName = parts[parts.length - 1];
+  const firstLet = parts[0]?.[0];
+
+  // Last name + first initial
+  for (const [key, val] of Object.entries(leaderboard)) {
+    const kp = key.split(' ');
+    if (kp[kp.length - 1] === lastName && kp[0]?.[0] === firstLet) return val;
+  }
+
+  // Last name only
+  for (const [key, val] of Object.entries(leaderboard)) {
+    if (key.endsWith(' ' + lastName) || key === lastName) return val;
+  }
+
+  return null;
+}
+
+// ============================================================
+//  SCORE UTILITIES
+// ============================================================
+function parseScore(s) {
+  const str = String(s).trim();
+  if (!str || str === 'E' || str.toLowerCase() === 'even') return 0;
+  return parseInt(str, 10) || 0;
+}
+
+function fmtScore(n) {
+  if (n === 0) return 'E';
+  return n > 0 ? '+' + n : '' + n;
+}
+
+function scoreClass(n) {
+  if (n < 0) return 'under';
+  if (n > 0) return 'over';
+  return 'even';
+}
+
+// ============================================================
+//  STANDINGS CALCULATION
+// ============================================================
+function calcStandings() {
+  const rows = POOL.map(p => {
+    // Resolve each pick against the live leaderboard
+    const golfers = p.picks.map(pick => {
+      if (!pick) return null;
+      const data = findGolfer(pick);
+      return {
+        pick,
+        displayName: data ? data.fullName : pick,
+        score:    data?.score  ?? null,
+        scoreStr: data?.scoreStr ?? (tourneyPhase === 'pre' ? '—' : '?'),
+        position: data?.position ?? '',
+        status:   data?.status  ?? 'pre',
+        isCut:    data?.status === 'cut',
+      };
+    });
+
+    const realPicks    = golfers.filter(Boolean);
+    const pendingCount = golfers.filter(g => g === null).length;
+    const madeCut      = realPicks.filter(g => !g.isCut);
+    const missedCut    = realPicks.filter(g => g.isCut);
+
+    // Elimination: only apply once all 4 picks are in AND cut has happened
+    const allPicksIn   = pendingCount === 0;
+    const cutHappened  = tourneyPhase !== 'pre' && Object.values(leaderboard).some(v => v.status === 'cut');
+    const eliminated   = allPicksIn && cutHappened && madeCut.length < 3;
+
+    // Best 3 of non-cut golfers (lowest score = best)
+    const scorable   = madeCut.filter(g => g.score !== null);
+    const sorted     = [...scorable].sort((a, b) => a.score - b.score);
+    const top3       = sorted.slice(0, 3);
+    const top3Names  = new Set(top3.map(g => g.pick));
+    realPicks.forEach(g => { g.counted = top3Names.has(g.pick) && !g.isCut; });
+
+    const hasLive    = top3.length > 0 && tourneyPhase !== 'pre';
+    const totalScore = eliminated ? null : (hasLive ? top3.reduce((s, g) => s + g.score, 0) : null);
+
+    return {
+      name: p.name,
+      golfers: realPicks,
+      pendingCount,
+      totalScore,
+      eliminated,
+      madeCutCount: madeCut.length,
+      top3,
+    };
+  });
+
+  return rows.sort((a, b) => {
+    if (a.eliminated && !b.eliminated) return 1;
+    if (!a.eliminated && b.eliminated) return -1;
+    if (a.totalScore === null && b.totalScore !== null) return 1;
+    if (a.totalScore !== null && b.totalScore === null) return -1;
+    if (a.totalScore === null && b.totalScore === null) return a.name.localeCompare(b.name);
+    return a.totalScore - b.totalScore;
+  });
+}
+
+// ============================================================
+//  RENDER
+// ============================================================
+function render() {
+  const standings = calcStandings();
+  const el        = document.getElementById('standings');
+
+  let html = '';
+
+  if (tourneyPhase === 'pre') {
+    html += `
+      <div class="pre-banner">
+        <div class="icon">🌿</div>
+        <h3>Tournament Begins Thursday</h3>
+        <p>All picks are locked in. Live scores will appear when play begins at Augusta National.</p>
+      </div>`;
+  }
+
+  html += `
+    <div class="table-header">
+      <div>POS</div><div>PARTICIPANT</div>
+      <div>SCORE</div><div>CUT STATUS</div>
+    </div>`;
+
+  let pos = 1;
+  let prevScore = null;
+  let tieStart  = 1;
+
+  standings.forEach((p, idx) => {
+    const isLeader = idx === 0 && !p.eliminated && p.totalScore !== null;
+
+    // Position / tie logic
+    let posLabel = '—';
+    if (!p.eliminated && p.totalScore !== null) {
+      if (p.totalScore === prevScore) {
+        posLabel = 'T' + tieStart;
+        // retro-label the previous card
+        const prev = el.querySelector?.(`#pos-${idx - 1}`);
+        if (prev) prev.textContent = 'T' + tieStart;
+      } else {
+        tieStart  = pos;
+        posLabel  = String(pos);
+      }
+      prevScore = p.totalScore;
+      pos++;
+    }
+
+    const cardClass  = p.eliminated ? 'eliminated' : (isLeader ? 'leader' : '');
+    const scoreNum   = p.totalScore;
+    const scoreCls   = p.eliminated ? 'out'
+                     : scoreNum === null ? 'dash'
+                     : scoreClass(scoreNum);
+    const scoreDisp  = p.eliminated ? 'OUT'
+                     : scoreNum === null ? '—'
+                     : fmtScore(scoreNum);
+
+    const badges = [];
+    if (p.eliminated)   badges.push(`<span class="out-badge">Eliminated</span>`);
+    if (p.pendingCount) badges.push(`<span class="pending-badge">${p.pendingCount} pick${p.pendingCount > 1 ? 's' : ''} pending</span>`);
+
+    const cutText = p.pendingCount
+      ? `${p.golfers.length}/4 picks in`
+      : `${p.madeCutCount}/4 made cut`;
+
+    // Golfer rows
+    const gRows = p.golfers.map(g => {
+      const rowCls = g.isCut ? 'cut-row' : (g.counted ? 'counted' : '');
+      const check  = g.counted ? `<span style="color:var(--gold)">✓</span>`
+                   : g.isCut  ? `<span style="color:var(--red)">✗</span>`
+                   :            `<span style="color:rgba(255,255,255,0.2)">·</span>`;
+      const sCls   = g.score !== null ? scoreClass(g.score) : '';
+      const stCls  = g.status === 'cut' ? 'cut' : g.status === 'active' ? 'active' : g.status === 'fin' ? 'fin' : 'pre';
+      const stLbl  = g.status === 'cut'    ? 'CUT'
+                   : g.status === 'fin'    ? 'F'
+                   : g.status === 'active' ? 'LIVE'
+                   : '';
+
+      return `
+        <div class="golfer-row ${rowCls}">
+          <div class="g-check">${check}</div>
+          <div class="g-name">${g.displayName}</div>
+          <div class="g-score ${sCls}">${g.scoreStr}</div>
+          <div class="g-pos">${g.position}</div>
+          <div class="g-status ${stCls}">${stLbl}</div>
+        </div>`;
+    }).join('');
+
+    const pendingRows = p.pendingCount
+      ? `<div class="pending-row">+ ${p.pendingCount} pick${p.pendingCount > 1 ? 's' : ''} not yet submitted</div>`
+      : '';
+
+    html += `
+      <div class="card ${cardClass}">
+        <div class="card-row" onclick="toggle(${idx})">
+          <div class="pos" id="pos-${idx}">${posLabel}</div>
+          <div class="pname">${p.name}${badges.join('')}</div>
+          <div class="score-total ${scoreCls}">${scoreDisp}</div>
+          <div class="cut-detail">${cutText}</div>
+        </div>
+        <div class="golfer-list" id="gl-${idx}">
+          <div class="golfer-list-header">
+            <div></div><div>GOLFER</div><div>SCORE</div><div>POS</div><div>STATUS</div>
+          </div>
+          ${gRows}
+          ${pendingRows}
+        </div>
+      </div>`;
+  });
+
+  el.innerHTML = html;
+}
+
+function toggle(idx) {
+  document.getElementById(`gl-${idx}`).classList.toggle('open');
+}
+
+// ============================================================
+//  BOOT
+// ============================================================
+fetchScores();
+setInterval(fetchScores, 60000);
+</script>
+</body>
+</html>
